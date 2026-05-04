@@ -207,7 +207,7 @@ static void clrhook_mono_on_assembly_load(void *assembly, void *user_data)
     if (clrhook_assembly_loaded)
         return;
 
-    void *domain = real_mono_domain_get ? real_mono_domain_get() : NULL;
+    void *domain = real_mono_domain_get();
     if (!domain)
         return;
 
@@ -233,12 +233,12 @@ static void clrhook_mono_launch()
     // mono doesnt have a StartupHooks embedded in the runtime...so lets do it ourselves.
     real_mono_install_assembly_load_hook = (mono_install_assembly_load_hook_t)dlsym(RTLD_DEFAULT, "mono_install_assembly_load_hook");
     real_mono_domain_get = (mono_domain_get_t)dlsym(RTLD_DEFAULT, "mono_domain_get");
+    real_mono_assembly_get_image = (mono_assembly_get_image_t)dlsym(RTLD_DEFAULT, "mono_assembly_get_image");
     real_mono_image_get_name = (mono_image_get_name_t)dlsym(RTLD_DEFAULT, "mono_image_get_name");
     // plugin loading refs
     real_mono_class_from_name = (mono_class_from_name_t)dlsym(RTLD_DEFAULT, "mono_class_from_name");
     real_mono_class_get_method_from_name = (mono_class_get_method_from_name_t)dlsym(RTLD_DEFAULT, "mono_class_get_method_from_name");
     real_mono_domain_assembly_open = (mono_domain_assembly_open_t)dlsym(RTLD_DEFAULT, "mono_domain_assembly_open");
-    real_mono_assembly_get_image = (mono_assembly_get_image_t)dlsym(RTLD_DEFAULT, "mono_assembly_get_image");
     real_mono_runtime_invoke = (mono_runtime_invoke_t)dlsym(RTLD_DEFAULT, "mono_runtime_invoke");
 
     if (!real_mono_install_assembly_load_hook || !real_mono_domain_get || !real_mono_image_get_name || !real_mono_class_from_name || !real_mono_class_get_method_from_name || !real_mono_domain_assembly_open || !real_mono_assembly_get_image || !real_mono_runtime_invoke)
